@@ -4,7 +4,7 @@ const app = getApp()
 
 Page({
   data: {
-    motto: 'Hello World',
+    motto: 'hello',
     userInfo: {},
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
@@ -18,18 +18,64 @@ Page({
     })
   },
   onLoad() {
+    console.log('saul onLoad', wx.getUserProfile())
+
     if (wx.getUserProfile) {
       this.setData({
         canIUseGetUserProfile: true
       })
     }
+
+  },
+  requestOpenId(code) {
+    const URL = "http://localhost:3500/openId"
+    wx.request({
+      url: URL,
+      method: "POST",
+      data: {
+        code,
+      },
+      success: res => {
+        if (res.data && res.data.data) {
+          const data = res.data.data
+          const { session_key = '', open_id = '' } = data
+
+
+
+          console.log('saul >>>>>>>>>>>>>>>>>>', data)
+        }
+        console.log("服务端结果", res.data.data);
+      }
+    });
+
+  },
+  getPhoneNumber (e) {
+    console.log('saul getPhoneNumber', e)
+    if (e.detail.errMsg == 'getPhoneNumber:ok') {
+    }
+  },
+  tryLogin() {
+    // 登录
+    wx.login({
+      success: res => {
+        console.log('saul ==================>>>> tryLogin start', res)
+        if (res.code) {
+          this.requestOpenId(res.code)
+          // this.requestOpenId('01179w1w3WYczZ2ln90w3lbKgG379w1a')
+        }
+      },
+      fail: res => {
+        console.log('saul tryLoginFailError', res)
+      }
+    })
+
   },
   getUserProfile(e) {
     // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认，开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
     wx.getUserProfile({
       desc: '展示用户信息', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
       success: (res) => {
-        console.log(res)
+        console.log('saul >>>>>>>>>>>>>>', res.userInfo)
         this.setData({
           userInfo: res.userInfo,
           hasUserInfo: true
