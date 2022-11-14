@@ -2,6 +2,8 @@
 // 获取应用实例
 const app = getApp()
 
+let loginSessionId = '30fe371b-9e70-4675-abb2-0909d7526f9e'
+
 Page({
   data: {
     motto: 'hello',
@@ -28,12 +30,13 @@ Page({
 
   },
   requestOpenId(code) {
-    const URL = "http://localhost:3500/openId"
+    const URL = "http://192.168.3.25:3500/openId"
     wx.request({
       url: URL,
       method: "POST",
       data: {
         code,
+        login_session_id: loginSessionId,
       },
       success: res => {
         if (res.data && res.data.data) {
@@ -49,9 +52,29 @@ Page({
     });
 
   },
-  getPhoneNumber (e) {
+  getPhoneNumber(e) {
     console.log('saul getPhoneNumber', e)
     if (e.detail.errMsg == 'getPhoneNumber:ok') {
+    const URL = "http://192.168.3.25:3500/loginWithEncryptedPhoneData"
+      wx.request({
+        url: URL,
+        method: "POST",
+        data: {
+          login_session_id: loginSessionId,
+          encryptedData: e.detail.encryptedData,
+          iv: e.detail.iv,
+        },
+        success: res => {
+          if (res.data && res.data.data) {
+            const data = res.data.data
+            console.log('saul 用户手机',data)
+          }
+          console.log("saul 登录后服务端结果", res);
+        }
+      });
+
+
+
     }
   },
   tryLogin() {
